@@ -1,16 +1,9 @@
+import spacy
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
-import nltk
 
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:  # This is the corrected line
-    print("NLTK 'punkt' tokenizer not found. Downloading...")
-    nltk.download('punkt_tab')
-    print("'punkt' downloaded successfully.")
-
-# --- Model Initialization ---
 print("Loading NLP models...")
+nlp = spacy.load("en_core_web_md")
 sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
 print("Models loaded successfully.")
 
@@ -25,13 +18,13 @@ def analyze_sections(sections, persona, job_to_be_done, summarize_top_n=5):
         "restaurants, local cuisine, city guides, and social events for young adults."
     )
     negative_query = "family-friendly activities, content for children, quiet museum guides, historical deep dives, packing lists"
-    
+
     print(f"\nPositive Query: {positive_query}")
     print(f"Negative Query: {negative_query}")
 
     section_texts = [section['text'] for section in sections]
     corpus_embeddings = sentence_model.encode(section_texts, convert_to_tensor=True, show_progress_bar=True)
-    
+
     positive_embedding = sentence_model.encode(positive_query, convert_to_tensor=True)
     negative_embedding = sentence_model.encode(negative_query, convert_to_tensor=True)
 
@@ -46,16 +39,19 @@ def analyze_sections(sections, persona, job_to_be_done, summarize_top_n=5):
     ranked_sections = sorted(sections, key=lambda x: x['importance_rank_score'], reverse=True)
 
     print(f"\nGenerating refined text for top {summarize_top_n} sections...")
+
     for section in ranked_sections[:summarize_top_n]:
-        sentences = nltk.sent_tokenize(section['text'])
+        doc = nlp(section['text'])
+        sentences = [sent.text.strip() for sent in doc.sents if sent.text.strip()]
+
         if len(sentences) > 0:
             sentence_embeddings = sentence_model.encode(sentences, convert_to_tensor=True)
             sentence_scores = util.cos_sim(positive_embedding, sentence_embeddings)[0]
             top_sentence_indices = np.argsort(sentence_scores.cpu().numpy())[-3:][::-1]
-            
+
             refined_text = " ".join([sentences[i] for i in sorted(top_sentence_indices)])
             section['refined_text'] = refined_text
         else:
             section['refined_text'] = "Could not extract key sentences from this section."
-        
+
     return ranked_sections

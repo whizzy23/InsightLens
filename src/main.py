@@ -1,4 +1,4 @@
-import argparse
+import os
 import time
 
 from document_processor import process_documents
@@ -6,23 +6,31 @@ from section_extractor import extract_sections
 from semantic_analyzer import analyze_sections
 from output_generator import generate_json_output
 
+INPUT_DIR = "/app/input"
+OUTPUT_DIR = "/app/output"
+
+DOCS_DIR = os.path.join(INPUT_DIR, "documents")
+PERSONA_FILE = os.path.join(INPUT_DIR, "persona.txt")
+JOB_FILE = os.path.join(INPUT_DIR, "job_to_be_done.txt")
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "output.json")
+
 def main():
-    parser = argparse.ArgumentParser(description="Intelligent Document Analyst")
-    parser.add_argument("--docs_dir", type=str, default="documents", help="Directory containing PDF documents")
-    parser.add_argument("--persona_file", type=str, default="persona.txt", help="Path to the persona definition file")
-    parser.add_argument("--job_file", type=str, default="job_to_be_done.txt", help="Path to the job-to-be-done file")
-    parser.add_argument("--output_file", type=str, default="output.json", help="Path for the output JSON file")
-    args = parser.parse_args()
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     start_time = time.time()
 
-    with open(args.persona_file, 'r', encoding='utf-8') as f:
-        persona = f.read().strip()
-    with open(args.job_file, 'r', encoding='utf-8') as f:
-        job_to_be_done = f.read().strip()
+    try:
+        with open(PERSONA_FILE, 'r', encoding='utf-8') as f:
+            persona = f.read().strip()
+        with open(JOB_FILE, 'r', encoding='utf-8') as f:
+            job_to_be_done = f.read().strip()
+    except FileNotFoundError as e:
+        print(f"Error: Input file not found. Make sure persona.txt and job_to_be_done.txt are in the input directory.")
+        print(e)
+        return
 
     all_sections = []
-    documents = process_documents(args.docs_dir)
+    documents = process_documents(DOCS_DIR)
     for doc in documents:
         sections = extract_sections(doc['pages'])
         for section in sections:
@@ -64,11 +72,11 @@ def main():
         "subsection_analysis": final_subsection_analysis
     }
 
-    generate_json_output(output_data, args.output_file)
+    generate_json_output(output_data, OUTPUT_FILE)
     
     processing_time = time.time() - start_time
     print(f"\nProcessing complete in {processing_time:.2f} seconds.")
-    print(f"Results saved to {args.output_file}")
+    print(f"Results saved to {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
