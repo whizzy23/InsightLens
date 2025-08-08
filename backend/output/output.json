@@ -1,0 +1,36 @@
+{
+    "metadata": {
+        "input_documents": [
+            "Problem_Statement.pdf"
+        ],
+        "persona": "Route Planner",
+        "job_to_be_done": "plan a route for a small trip",
+        "processing_timestamp": "2025-08-08T12:50:23Z"
+    },
+    "extracted_sections": [
+        {
+            "document": "Problem_Statement.pdf",
+            "section_title": "Problem Statement",
+            "importance_rank": 1,
+            "page_number": 1
+        },
+        {
+            "document": "Problem_Statement.pdf",
+            "section_title": "1. Develop a driver management platform to track schedules, breaks, and availability.",
+            "importance_rank": 2,
+            "page_number": 2
+        }
+    ],
+    "subsection_analysis": [
+        {
+            "document": "Problem_Statement.pdf",
+            "refined_text": "• Outcome: Real-time visibility into traffic and weather conditions to inform routing decisions. Implement route optimization algorithms (e.g., Dijkstra’s or A*). • Outcome: Dynamic route suggestions that adapt to real-time conditions, reducing delays and fuel usage.",
+            "page_number": 1
+        },
+        {
+            "document": "Problem_Statement.pdf",
+            "refined_text": "2. Integrate GPS systems to monitor vehicle movements and delivery progress. Implement a notification system to alert drivers about route changes and urgent updates. • Outcome: A fully operational, technology-driven transportation management system that enhances efficiency, reduces costs, and aligns with sustainability goals.",
+            "page_number": 2
+        }
+    ]
+}

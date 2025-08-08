@@ -1,0 +1,6 @@
+pdfplumber
+sentence-transformers
+numpy
+spacy>=3.7.0
+flask
+flask-cors
